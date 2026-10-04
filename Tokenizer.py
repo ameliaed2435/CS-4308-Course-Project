@@ -95,13 +95,12 @@ def categorize_token(token):
         # Remove leading and trailing double quotes, "\, and /" from string literals
         cleaned_token = token[1:-1].replace('\\"', '"').replace("\\'", "'").replace("\\/", "/")
         return {"Type": "StringLiteral", "id": 5000, "value": cleaned_token}
-    elif token in [",","="]:
-        return {"Type": "Operator", "id": 400, "value": token}
     elif token in tokenList["operators"]:
         return {"Type": "Operator", "id": tokenList["operators"][str(token)], "value": token}
     elif token == ":":
         return {"Type": "VariableDeclaration", "id": 6002, "value": token}
-    # Add more conditions for other types of tokens
+    elif token in tokenList["specialSymbols"]:
+        return {"Type": "SpecialSymbol", "id": tokenList["specialSymbols"][str(token)], "value": token}
 
     # If none of the above conditions match, treat it as an "UNKNOWN" token
     return {"Type": "UNKNOWN", "id": 1200, "value": token}

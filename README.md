@@ -14,3 +14,5 @@ Feel free to clear this after the first deliverable since it would no longer be 
 # Amelia Dodson
 1. resolved the TODO on Token.py by removing '.' from specialSymbols (see my comment block for justification)
 2. if, else, etc to keywords (they were being categorized as identifiers)
+3. Removed hardcoded sorting of "," and "=" in categorized_token()
+4. Added elif statement in categorize_token() for categorizing specialSymbols

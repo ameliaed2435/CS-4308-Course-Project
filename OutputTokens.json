@@ -186,7 +186,7 @@
     },
     "Token_37": {
         "Type": "Operator",
-        "id": 400,
+        "id": 408,
         "value": "="
     },
     "Token_38": {
@@ -210,8 +210,8 @@
         "value": "Value of x: "
     },
     "Token_42": {
-        "Type": "Operator",
-        "id": 400,
+        "Type": "SpecialSymbol",
+        "id": 800,
         "value": ","
     },
     "Token_43": {
@@ -235,8 +235,8 @@
         "value": "type value of t: "
     },
     "Token_47": {
-        "Type": "Operator",
-        "id": 400,
+        "Type": "SpecialSymbol",
+        "id": 800,
         "value": ","
     },
     "Token_48": {
@@ -260,8 +260,8 @@
         "value": "The value of t is: "
     },
     "Token_52": {
-        "Type": "Operator",
-        "id": 400,
+        "Type": "SpecialSymbol",
+        "id": 800,
         "value": ","
     },
     "Token_53": {
@@ -291,7 +291,7 @@
     },
     "Token_58": {
         "Type": "Operator",
-        "id": 400,
+        "id": 408,
         "value": "="
     },
     "Token_59": {
