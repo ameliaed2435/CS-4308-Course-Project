@@ -275,8 +275,8 @@
         "value": "EOS"
     },
     "Token_55": {
-        "Type": "Identifier",
-        "id": 3003,
+        "Type": "Keyword",
+        "id": 45,
         "value": "if"
     },
     "Token_56": {
@@ -300,8 +300,8 @@
         "value": "t"
     },
     "Token_60": {
-        "Type": "Identifier",
-        "id": 3004,
+        "Type": "Keyword",
+        "id": 46,
         "value": "then"
     },
     "Token_61": {
@@ -325,8 +325,8 @@
         "value": "EOS"
     },
     "Token_65": {
-        "Type": "Identifier",
-        "id": 3005,
+        "Type": "Keyword",
+        "id": 47,
         "value": "else"
     },
     "Token_66": {
@@ -350,8 +350,8 @@
         "value": "EOS"
     },
     "Token_70": {
-        "Type": "Identifier",
-        "id": 3006,
+        "Type": "Keyword",
+        "id": 48,
         "value": "endif"
     },
     "Token_71": {
@@ -360,13 +360,13 @@
         "value": "EOS"
     },
     "Token_72": {
-        "Type": "Identifier",
-        "id": 3003,
+        "Type": "Keyword",
+        "id": 45,
         "value": "if"
     },
     "Token_73": {
-        "Type": "Identifier",
-        "id": 3007,
+        "Type": "Keyword",
+        "id": 49,
         "value": "not"
     },
     "Token_74": {
@@ -375,18 +375,18 @@
         "value": "x"
     },
     "Token_75": {
-        "Type": "Identifier",
-        "id": 3008,
+        "Type": "Keyword",
+        "id": 50,
         "value": "greater"
     },
     "Token_76": {
-        "Type": "Identifier",
-        "id": 3009,
+        "Type": "Keyword",
+        "id": 51,
         "value": "or"
     },
     "Token_77": {
-        "Type": "Identifier",
-        "id": 3010,
+        "Type": "Keyword",
+        "id": 52,
         "value": "equal"
     },
     "Token_78": {
@@ -395,8 +395,8 @@
         "value": "t"
     },
     "Token_79": {
-        "Type": "Identifier",
-        "id": 3004,
+        "Type": "Keyword",
+        "id": 46,
         "value": "then"
     },
     "Token_80": {
@@ -420,8 +420,8 @@
         "value": "EOS"
     },
     "Token_84": {
-        "Type": "Identifier",
-        "id": 3006,
+        "Type": "Keyword",
+        "id": 48,
         "value": "endif"
     },
     "Token_85": {
