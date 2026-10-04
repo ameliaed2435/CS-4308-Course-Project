@@ -10,3 +10,7 @@ There is a section in the code for names of the people contributing, and I have 
 I added the Convert function by viewing it in the Scanner explanation video.
 
 Feel free to clear this after the first deliverable since it would no longer be necessary .
+
+# Amelia Dodson
+1. resolved the TODO on Token.py by removing '.' from specialSymbols (see my comment block for justification)
+2. if, else, etc to keywords (they were being categorized as identifiers)

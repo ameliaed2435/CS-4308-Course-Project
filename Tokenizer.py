@@ -3,7 +3,7 @@ import json
 import sys
 import re
 
-# Group members ()
+# Group members (Amelia Dodson, Michael Constantine, Jarren Shaw, Alex Rickman)
 
 def tokenize_line(line):
     tokens = []

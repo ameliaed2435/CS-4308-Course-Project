@@ -45,7 +45,15 @@ tokenList = {
         'setup': 41,
         'declarations': 42,
         'loop': 43,
-        'parameters': 44
+        'parameters': 44,
+        'if': 45,
+        'then': 46,
+        'else': 47,
+        'endif': 48,
+        'not': 49,
+        'greater': 50,
+        'or': 51,
+        'equal': 52
 
     },
 
@@ -60,12 +68,15 @@ tokenList = {
         '=': 408,
         '(':409,
         ')':410,
-        '.':411 #TODO Need to add some way to signify operator vs special symbol
+        '.':411 # TODO Need to add some way to signify operator vs special symbol
+                # Resolved above by removing '.' from specialSymbols.
+                # Note that its use in Sysplm is as an operator or in float nums
+                # & its use in float nums is handled via regex, so we can leave it out
+                # of SpecialSymbols.
     },
 
     "specialSymbols": {
-        ',': 800,
-        '.': 801,
+        ',': 800
     }
 }
 
