@@ -1,0 +1,199 @@
+Line 5: <import_statement> recognized
+Line 9: <declaration> (variable 'count' of type integer) recognized
+Line 10: <declaration> (variable 'total' of type integer) recognized
+Line 11: <declaration> (variable 'average' of type double) recognized
+Line 13: <set_statement> recognized
+Line 14: <set_statement> recognized
+Line 16: <set_statement> recognized
+Line 17: <set_statement> recognized
+Line 15: <while_statement> recognized
+Line 19: <set_statement> recognized
+Line 20: <display_statement> recognized
+Line 21: <display_statement> recognized
+Line 23: <display_statement> recognized
+Line 22: <if_statement> recognized
+Line 25: <return_statement> recognized
+
+Parsing completed successfully: 11 statements recognized, 3 variables declared.
+
+Parse tree:
+<program>
+|-- <import_statement>
+|   |-- Keyword: import
+|   `-- StringLiteral: "scl.h"
+|-- Keyword: implementations
+`-- <function>
+    |-- Keyword: function
+    |-- Keyword: main
+    |-- Keyword: is
+    |-- Keyword: variables
+    |-- <declarations>
+    |   |-- <declaration>
+    |   |   |-- Keyword: define
+    |   |   |-- Identifier: count
+    |   |   |-- Keyword: of
+    |   |   |-- Keyword: type
+    |   |   `-- <type>
+    |   |       `-- Keyword: integer
+    |   |-- <declaration>
+    |   |   |-- Keyword: define
+    |   |   |-- Identifier: total
+    |   |   |-- Keyword: of
+    |   |   |-- Keyword: type
+    |   |   `-- <type>
+    |   |       `-- Keyword: integer
+    |   `-- <declaration>
+    |       |-- Keyword: define
+    |       |-- Identifier: average
+    |       |-- Keyword: of
+    |       |-- Keyword: type
+    |       `-- <type>
+    |           `-- Keyword: double
+    |-- Keyword: begin
+    |-- <statements>
+    |   |-- <statement>
+    |   |   `-- <set_statement>
+    |   |       |-- Keyword: set
+    |   |       |-- Identifier: count
+    |   |       |-- Operator: =
+    |   |       `-- <expression>
+    |   |           `-- <term>
+    |   |               `-- <factor>
+    |   |                   `-- NumericLiteral: 1
+    |   |-- <statement>
+    |   |   `-- <set_statement>
+    |   |       |-- Keyword: set
+    |   |       |-- Identifier: total
+    |   |       |-- Operator: =
+    |   |       `-- <expression>
+    |   |           `-- <term>
+    |   |               `-- <factor>
+    |   |                   `-- NumericLiteral: 0
+    |   |-- <statement>
+    |   |   `-- <while_statement>
+    |   |       |-- Keyword: while
+    |   |       |-- <condition>
+    |   |       |   |-- <expression>
+    |   |       |   |   `-- <term>
+    |   |       |   |       `-- <factor>
+    |   |       |   |           `-- Identifier: count
+    |   |       |   |-- <relop>
+    |   |       |   |   `-- Operator: <=
+    |   |       |   `-- <expression>
+    |   |       |       `-- <term>
+    |   |       |           `-- <factor>
+    |   |       |               `-- NumericLiteral: 5
+    |   |       |-- Keyword: do
+    |   |       |-- <statements>
+    |   |       |   |-- <statement>
+    |   |       |   |   `-- <set_statement>
+    |   |       |   |       |-- Keyword: set
+    |   |       |   |       |-- Identifier: total
+    |   |       |   |       |-- Operator: =
+    |   |       |   |       `-- <expression>
+    |   |       |   |           |-- <term>
+    |   |       |   |           |   `-- <factor>
+    |   |       |   |           |       `-- Identifier: total
+    |   |       |   |           |-- Operator: +
+    |   |       |   |           `-- <term>
+    |   |       |   |               |-- <factor>
+    |   |       |   |               |   `-- Identifier: count
+    |   |       |   |               |-- Operator: *
+    |   |       |   |               `-- <factor>
+    |   |       |   |                   `-- NumericLiteral: 2
+    |   |       |   `-- <statement>
+    |   |       |       `-- <set_statement>
+    |   |       |           |-- Keyword: set
+    |   |       |           |-- Identifier: count
+    |   |       |           |-- Operator: =
+    |   |       |           `-- <expression>
+    |   |       |               |-- <term>
+    |   |       |               |   `-- <factor>
+    |   |       |               |       `-- Identifier: count
+    |   |       |               |-- Operator: +
+    |   |       |               `-- <term>
+    |   |       |                   `-- <factor>
+    |   |       |                       `-- NumericLiteral: 1
+    |   |       `-- Keyword: endwhile
+    |   |-- <statement>
+    |   |   `-- <set_statement>
+    |   |       |-- Keyword: set
+    |   |       |-- Identifier: average
+    |   |       |-- Operator: =
+    |   |       `-- <expression>
+    |   |           `-- <term>
+    |   |               |-- <factor>
+    |   |               |   |-- Operator: (
+    |   |               |   |-- <expression>
+    |   |               |   |   |-- <term>
+    |   |               |   |   |   `-- <factor>
+    |   |               |   |   |       `-- Identifier: total
+    |   |               |   |   |-- Operator: -
+    |   |               |   |   `-- <term>
+    |   |               |   |       `-- <factor>
+    |   |               |   |           `-- NumericLiteral: 1
+    |   |               |   `-- Operator: )
+    |   |               |-- Operator: /
+    |   |               `-- <factor>
+    |   |                   `-- Identifier: count
+    |   |-- <statement>
+    |   |   `-- <display_statement>
+    |   |       |-- Keyword: display
+    |   |       |-- <item>
+    |   |       |   `-- StringLiteral: "Total: "
+    |   |       |-- SpecialSymbol: ,
+    |   |       |-- <item>
+    |   |       |   `-- <expression>
+    |   |       |       `-- <term>
+    |   |       |           `-- <factor>
+    |   |       |               `-- Identifier: total
+    |   |       |-- SpecialSymbol: ,
+    |   |       |-- <item>
+    |   |       |   `-- StringLiteral: " average: "
+    |   |       |-- SpecialSymbol: ,
+    |   |       `-- <item>
+    |   |           `-- <expression>
+    |   |               `-- <term>
+    |   |                   `-- <factor>
+    |   |                       `-- Identifier: average
+    |   |-- <statement>
+    |   |   `-- <display_statement>
+    |   |       |-- Keyword: display
+    |   |       `-- <item>
+    |   |           `-- StringLiteral: "see http://example.com/scl"
+    |   |-- <statement>
+    |   |   `-- <if_statement>
+    |   |       |-- Keyword: if
+    |   |       |-- <condition>
+    |   |       |   |-- <expression>
+    |   |       |   |   `-- <term>
+    |   |       |   |       `-- <factor>
+    |   |       |   |           `-- Identifier: total
+    |   |       |   |-- <relop>
+    |   |       |   |   `-- Operator: >
+    |   |       |   `-- <expression>
+    |   |       |       `-- <term>
+    |   |       |           `-- <factor>
+    |   |       |               `-- NumericLiteral: 20
+    |   |       |-- Keyword: then
+    |   |       |-- <statements>
+    |   |       |   `-- <statement>
+    |   |       |       `-- <display_statement>
+    |   |       |           |-- Keyword: display
+    |   |       |           `-- <item>
+    |   |       |               `-- <expression>
+    |   |       |                   `-- <term>
+    |   |       |                       `-- <factor>
+    |   |       |                           |-- Operator: -
+    |   |       |                           `-- <factor>
+    |   |       |                               `-- Identifier: total
+    |   |       `-- Keyword: endif
+    |   `-- <statement>
+    |       `-- <return_statement>
+    |           |-- Keyword: return
+    |           `-- <expression>
+    |               `-- <term>
+    |                   `-- <factor>
+    |                       `-- NumericLiteral: 0
+    |-- Keyword: endfun
+    `-- Keyword: main

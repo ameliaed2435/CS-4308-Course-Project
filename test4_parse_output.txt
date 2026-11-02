@@ -1,0 +1,6 @@
+Line 1: <import_statement> recognized
+Line 5: <declaration> (variable 'x' of type integer) recognized
+Line 6: <declaration> (variable 'y' of type double) recognized
+
+ERROR: Semantic error on line 7: variable 'x' has already been declared
+Parsing stopped at the first error.

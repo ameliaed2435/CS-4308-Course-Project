@@ -1,0 +1,5 @@
+Line 1: <import_statement> recognized
+Line 5: <declaration> (variable 'x' of type integer) recognized
+
+ERROR: Lexical error on line 7: unrecognized token '@'
+Parsing stopped at the first error.
