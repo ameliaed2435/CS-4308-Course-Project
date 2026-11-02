@@ -1,0 +1,168 @@
+Line 7: <import_statement> recognized
+Line 11: <declaration> (variable 'x' of type double) recognized
+Line 12: <declaration> (variable 't' of type double) recognized
+Line 13: <declaration> (variable 'pt' of type double) recognized
+Line 15: <display_statement> recognized
+Line 16: <set_statement> recognized
+Line 17: <display_statement> recognized
+Line 18: <input_statement> recognized
+Line 19: <display_statement> recognized
+Line 21: <display_statement> recognized
+Line 23: <display_statement> recognized
+Line 20: <if_statement> recognized
+Line 26: <display_statement> recognized
+Line 25: <if_statement> recognized
+Line 28: <return_statement> recognized
+
+Parsing completed successfully: 11 statements recognized, 3 variables declared.
+
+Parse tree:
+<program>
+|-- <import_statement>
+|   |-- Keyword: import
+|   `-- StringLiteral: "scl.h"
+|-- Keyword: implementations
+`-- <function>
+    |-- Keyword: function
+    |-- Keyword: main
+    |-- Keyword: is
+    |-- Keyword: variables
+    |-- <declarations>
+    |   |-- <declaration>
+    |   |   |-- Keyword: define
+    |   |   |-- Identifier: x
+    |   |   |-- Keyword: of
+    |   |   |-- Keyword: type
+    |   |   `-- <type>
+    |   |       `-- Keyword: double
+    |   |-- <declaration>
+    |   |   |-- Keyword: define
+    |   |   |-- Identifier: t
+    |   |   |-- Keyword: of
+    |   |   |-- Keyword: type
+    |   |   `-- <type>
+    |   |       `-- Keyword: double
+    |   `-- <declaration>
+    |       |-- Keyword: define
+    |       |-- Identifier: pt
+    |       |-- Keyword: pointer
+    |       |-- Keyword: of
+    |       |-- Keyword: type
+    |       `-- <type>
+    |           `-- Keyword: double
+    |-- Keyword: begin
+    |-- <statements>
+    |   |-- <statement>
+    |   |   `-- <display_statement>
+    |   |       |-- Keyword: display
+    |   |       `-- <item>
+    |   |           `-- StringLiteral: "Welcome to the world of SCL"
+    |   |-- <statement>
+    |   |   `-- <set_statement>
+    |   |       |-- Keyword: set
+    |   |       |-- Identifier: x
+    |   |       |-- Operator: =
+    |   |       `-- <expression>
+    |   |           `-- <term>
+    |   |               `-- <factor>
+    |   |                   `-- NumericLiteral: 45.95
+    |   |-- <statement>
+    |   |   `-- <display_statement>
+    |   |       |-- Keyword: display
+    |   |       |-- <item>
+    |   |       |   `-- StringLiteral: "Value of x: "
+    |   |       |-- SpecialSymbol: ,
+    |   |       `-- <item>
+    |   |           `-- <expression>
+    |   |               `-- <term>
+    |   |                   `-- <factor>
+    |   |                       `-- Identifier: x
+    |   |-- <statement>
+    |   |   `-- <input_statement>
+    |   |       |-- Keyword: input
+    |   |       |-- StringLiteral: "type value of t: "
+    |   |       |-- SpecialSymbol: ,
+    |   |       `-- Identifier: t
+    |   |-- <statement>
+    |   |   `-- <display_statement>
+    |   |       |-- Keyword: display
+    |   |       |-- <item>
+    |   |       |   `-- StringLiteral: "The value of t is: "
+    |   |       |-- SpecialSymbol: ,
+    |   |       `-- <item>
+    |   |           `-- <expression>
+    |   |               `-- <term>
+    |   |                   `-- <factor>
+    |   |                       `-- Identifier: t
+    |   |-- <statement>
+    |   |   `-- <if_statement>
+    |   |       |-- Keyword: if
+    |   |       |-- <condition>
+    |   |       |   |-- <expression>
+    |   |       |   |   `-- <term>
+    |   |       |   |       `-- <factor>
+    |   |       |   |           `-- Identifier: x
+    |   |       |   |-- <relop>
+    |   |       |   |   `-- Operator: >=
+    |   |       |   `-- <expression>
+    |   |       |       `-- <term>
+    |   |       |           `-- <factor>
+    |   |       |               `-- Identifier: t
+    |   |       |-- Keyword: then
+    |   |       |-- <statements>
+    |   |       |   `-- <statement>
+    |   |       |       `-- <display_statement>
+    |   |       |           |-- Keyword: display
+    |   |       |           `-- <item>
+    |   |       |               `-- <expression>
+    |   |       |                   `-- <term>
+    |   |       |                       `-- <factor>
+    |   |       |                           `-- Identifier: t
+    |   |       |-- Keyword: else
+    |   |       |-- <statements>
+    |   |       |   `-- <statement>
+    |   |       |       `-- <display_statement>
+    |   |       |           |-- Keyword: display
+    |   |       |           `-- <item>
+    |   |       |               `-- <expression>
+    |   |       |                   `-- <term>
+    |   |       |                       `-- <factor>
+    |   |       |                           `-- Identifier: x
+    |   |       `-- Keyword: endif
+    |   |-- <statement>
+    |   |   `-- <if_statement>
+    |   |       |-- Keyword: if
+    |   |       |-- <condition>
+    |   |       |   |-- Keyword: not
+    |   |       |   |-- <expression>
+    |   |       |   |   `-- <term>
+    |   |       |   |       `-- <factor>
+    |   |       |   |           `-- Identifier: x
+    |   |       |   |-- <relop>
+    |   |       |   |   |-- Keyword: greater
+    |   |       |   |   |-- Keyword: or
+    |   |       |   |   `-- Keyword: equal
+    |   |       |   `-- <expression>
+    |   |       |       `-- <term>
+    |   |       |           `-- <factor>
+    |   |       |               `-- Identifier: t
+    |   |       |-- Keyword: then
+    |   |       |-- <statements>
+    |   |       |   `-- <statement>
+    |   |       |       `-- <display_statement>
+    |   |       |           |-- Keyword: display
+    |   |       |           `-- <item>
+    |   |       |               `-- <expression>
+    |   |       |                   `-- <term>
+    |   |       |                       `-- <factor>
+    |   |       |                           `-- Identifier: x
+    |   |       `-- Keyword: endif
+    |   `-- <statement>
+    |       `-- <return_statement>
+    |           |-- Keyword: return
+    |           `-- <expression>
+    |               `-- <term>
+    |                   `-- <factor>
+    |                       `-- NumericLiteral: 0
+    |-- Keyword: endfun
+    `-- Keyword: main
