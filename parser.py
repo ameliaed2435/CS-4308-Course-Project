@@ -2,6 +2,8 @@ import json
 import os
 import sys
 
+import ast_nodes as ast
+
 from Tokenizer import scan_file
 
 DATA_TYPES = ("integer", "double", "float", "char")
@@ -50,6 +52,7 @@ class Parser:
         self._symbols = {}           # declared variables: name -> data type
         self._statement_count = 0
         self._output = []            # every line printed, also saved to a file
+        self.ast_program = None      # build ast program node for Executer
 
 
     # Public functions
@@ -86,8 +89,10 @@ class Parser:
     def begin(self):
         """Parse the whole program. Returns True if correct."""
         success = False
+        self.ast_program = None
         try:
             self.getNextToken()
+            tree, self.ast_program = self._start()
             tree = self._start()
             self._emit("")
             self._emit("Parsing completed successfully: %d statements recognized, %d variables declared." %
@@ -98,6 +103,7 @@ class Parser:
                 self._emit(line)
             success = True
         except ParseError as error:
+            self.ast_program
             self._emit("")
             self._emit("ERROR: %s" % error)
             self._emit("Parsing stopped at the first error.")
@@ -176,23 +182,29 @@ class Parser:
             raise ParseError("Semantic error on line %s: variable '%s' is used but has not been declared" %
                              (self._line(), name))
         self._consume(node)
+        return name
 
     def _recognized(self, what, line):
         self._emit("Line %s: %s recognized" % (line, what))
 
 
     # Grammar rules - one function per non-terminal
+    # each rule returns (cst_node, ast_node). cst_node is parse tree node, ast_node is abstract syntax tree node
 
     def _start(self):
         # <program> ::= { <import_statement> } "implementations" <function>
         node = Node("<program>")
+        imports = []
         while self._is_keyword("import"):
-            node.add(self._import_statement())
+            imp_node, imp_val = self._import_statement()
+            node.add(imp_node)
+            imports.append(imp_val)
         self._expect_keyword("implementations", node, "'import' or 'implementations'")
-        node.add(self._function())
+        func_node, func_ast = self._function()
+        node.add(func_node)
         if self._current["Type"] != "EOF":
             self._error("the end of the file after 'endfun main'")
-        return node
+        return node, ast.Program(imports=imports, function=func_ast)
 
     def _import_statement(self):
         # <import_statement> ::= "import" STRING
@@ -201,9 +213,10 @@ class Parser:
         self._expect_keyword("import", node)
         if self._current["Type"] != "StringLiteral":
             self._error("a file name in quotes")
+        imp_val = self._current["value"]
         self._consume(node)
         self._recognized("<import_statement>", line)
-        return node
+        return node, imp_val
 
     def _function(self):
         # <function> ::= "function" "main" "is" "variables" <declarations>
@@ -213,19 +226,24 @@ class Parser:
         self._expect_keyword("main", node)
         self._expect_keyword("is", node)
         self._expect_keyword("variables", node)
-        node.add(self._declarations())
+        decls_node, decls_ast = self._declarations()
+        node.add(decls_node)
         self._expect_keyword("begin", node, "'define' or 'begin'")
-        node.add(self._statements())
+        stmts_node, stmts_ast = self._statements()
+        node.add(stmts_node)
         self._expect_keyword("endfun", node, "a statement or 'endfun'")
         self._expect_keyword("main", node)
-        return node
+        return node, ast.Function(name="main", declarations=decls_ast, statements=stmts_ast)
 
     def _declarations(self):
         # <declarations> ::= { <declaration> }
         node = Node("<declarations>")
+        decls_ast = []
         while self._is_keyword("define"):
-            node.add(self._declaration())
-        return node
+            decl_node, decl_ast = self._declaration()
+            node.add(decl_node)
+            decls_ast.append(decl_ast)
+        return node, decls_ast
 
     def _declaration(self):
         # <declaration> ::= "define" IDENTIFIER [ "pointer" ] "of" "type" <type>
@@ -239,7 +257,9 @@ class Parser:
             raise ParseError("Semantic error on line %s: variable '%s' has already been declared" %
                              (self._line(), name))
         self._consume(node)
+        is_pointer = False
         if self._is_keyword("pointer"):
+            is_pointer = True
             self._consume(node)
         self._expect_keyword("of", node)
         self._expect_keyword("type", node)
@@ -250,14 +270,18 @@ class Parser:
         self._consume(type_node)
         self._symbols[name] = data_type
         self._recognized("<declaration> (variable '%s' of type %s)" % (name, data_type), line)
-        return node
+        decl_ast = ast.VariableDeclaration(ast.Identifier(name), data_type, is_pointer=is_pointer)
+        return node, decl_ast
 
     def _statements(self):
         # <statements> ::= { <statement> }
         node = Node("<statements>")
+        stmts_ast = []
         while self._current["Type"] == "Keyword" and self._current["value"] in STATEMENT_KEYWORDS:
-            node.add(self._statement())
-        return node
+            stmt_node, stmt_ast = self._statement()
+            node.add(stmt_node)
+            stmts_ast.append(stmt_ast)
+        return node, stmts_ast
 
     def _statement(self):
         # <statement> ::= <display_statement> | <set_statement> | <input_statement>
@@ -266,50 +290,59 @@ class Parser:
         word = self._current["value"]
         self._statement_count += 1
         if word == "display":
-            node.add(self._display_statement())
+            stmt_node, stmt_ast = self._display_statement()
         elif word == "set":
-            node.add(self._set_statement())
+            stmt_node, stmt_ast = self._set_statement()
         elif word == "input":
-            node.add(self._input_statement())
+            stmt_node, stmt_ast = self._input_statement()
         elif word == "if":
-            node.add(self._if_statement())
+            stmt_node, stmt_ast = self._if_statement()
         elif word == "while":
-            node.add(self._while_statement())
+            stmt_node, stmt_ast = self._while_statement()
         else:
-            node.add(self._return_statement())
-        return node
+            stmt_node, stmt_ast = self._return_statement()
+        node.add(stmt_node)
+        return node, stmt_ast
 
     def _display_statement(self):
         # <display_statement> ::= "display" <item> { "," <item> }
         node = Node("<display_statement>")
         line = self._line()
         self._expect_keyword("display", node)
-        node.add(self._item())
+        items_ast = []
+        item_node, item_ast = self._item()
+        node.add(item_node)
+        items_ast.append(item_ast)
         while self._is_comma():
             self._consume(node)
-            node.add(self._item())
+            item_node, item_ast = self._item()
+            node.add(item_node)
+            items_ast.append(item_ast)
         self._recognized("<display_statement>", line)
-        return node
+        return node, ast.Display(items_ast)
 
     def _item(self):
         # <item> ::= STRING | <expression>
         node = Node("<item>")
         if self._current["Type"] == "StringLiteral":
+            value = self._current["value"]
             self._consume(node)
-        else:
-            node.add(self._expression())
-        return node
+            return node, ast.StringLiteral(value)
+        expr_node, expr_ast = self._expression()
+        node.add(expr_node)
+        return node, expr_ast
 
     def _set_statement(self):
         # <set_statement> ::= "set" IDENTIFIER "=" <expression>
         node = Node("<set_statement>")
         line = self._line()
         self._expect_keyword("set", node)
-        self._variable(node)
+        var_name = self._variable(node)
         self._expect_operator("=", node)
-        node.add(self._expression())
+        expr_node, expr_ast = self._expression()
+        node.add(expr_node)
         self._recognized("<set_statement>", line)
-        return node
+        return node, ast.Set(ast.Identifier(var_name), expr_ast)
 
     def _input_statement(self):
         # <input_statement> ::= "input" STRING "," IDENTIFIER
@@ -318,13 +351,14 @@ class Parser:
         self._expect_keyword("input", node)
         if self._current["Type"] != "StringLiteral":
             self._error("a prompt string in quotes")
+        prompt_val = self._current["value"]
         self._consume(node)
         if not self._is_comma():
             self._error("','")
         self._consume(node)
-        self._variable(node)
+        var_name = self._variable(node)
         self._recognized("<input_statement>", line)
-        return node
+        return node, ast.Input(prompt_val, ast.Identifier(var_name))
 
     def _if_statement(self):
         # <if_statement> ::= "if" <condition> "then" <statements>
@@ -332,99 +366,130 @@ class Parser:
         node = Node("<if_statement>")
         line = self._line()
         self._expect_keyword("if", node)
-        node.add(self._condition())
+        cond_node, cond_ast = self._condition()
+        node.add(cond_node)
         self._expect_keyword("then", node)
-        node.add(self._statements())
+        if_node, if_ast = self._statements()
+        node.add(if_node)
+        else_ast = []
         if self._is_keyword("else"):
             self._consume(node)
-            node.add(self._statements())
+            else_node, else_ast = self._statements()
+            node.add(else_node)
         self._expect_keyword("endif", node, "a statement, 'else' or 'endif'")
         self._recognized("<if_statement>", line)
-        return node
+        return node, ast.If(cond_ast, if_ast, else_ast)
 
     def _while_statement(self):
         # <while_statement> ::= "while" <condition> "do" <statements> "endwhile"
         node = Node("<while_statement>")
         line = self._line()
         self._expect_keyword("while", node)
-        node.add(self._condition())
+        cond_node, cond_ast = self._condition()
+        node.add(cond_node)
         self._expect_keyword("do", node)
-        node.add(self._statements())
+        body_node, body_ast = self._statements()
+        node.add(body_node)
         self._expect_keyword("endwhile", node, "a statement or 'endwhile'")
         self._recognized("<while_statement>", line)
-        return node
+        return node, ast.While(cond_ast, body_ast)
 
     def _return_statement(self):
         # <return_statement> ::= "return" <expression>
         node = Node("<return_statement>")
         line = self._line()
         self._expect_keyword("return", node)
-        node.add(self._expression())
+        expr_node, expr_ast = self._expression()
+        node.add(expr_node)
         self._recognized("<return_statement>", line)
-        return node
+        return node, ast.Return(expr_ast)
 
     def _condition(self):
         # <condition> ::= [ "not" ] <expression> <relop> <expression>
         node = Node("<condition>")
         if self._is_keyword("not"):
+            negated = True
             self._consume(node)
-        node.add(self._expression())
-        node.add(self._relop())
-        node.add(self._expression())
-        return node
+        left_node, left_ast = self._expression()
+        node.add(left_node)
+        op_node, op_ast = self.relop()
+        node.add(op_node)
+        right_node, right_ast = self._expression()
+        node.add(right_node)
+        return node, ast.Condition(left_ast, op_ast, right_ast, negated=negated)
 
     def _relop(self):
         # <relop> ::= ">" | ">=" | "<" | "<=" | "="
         #           | "greater" [ "or" "equal" ] | "equal"
         node = Node("<relop>")
         if self._current["Type"] == "Operator" and self._current["value"] in RELATIONAL_OPERATORS:
+            op_str = self._current["value"]
             self._consume(node)
+            return node, ast.Operator(op_str)
         elif self._is_keyword("greater"):
             self._consume(node)
             if self._is_keyword("or"):
                 self._consume(node)
                 self._expect_keyword("equal", node)
+                return node, ast.Operator("greater or equal")
+            return node, ast.Operator("greater")
         elif self._is_keyword("equal"):
             self._consume(node)
+            return node, ast.Operator("equal")
         else:
             self._error("a comparison operator (>, >=, <, <=, =, greater, equal)")
-        return node
+            return node, None
 
     def _expression(self):
         # <expression> ::= <term> { ( "+" | "-" ) <term> }
         node = Node("<expression>")
-        node.add(self._term())
+        left_node, left_ast = self._term()
+        node.add(left_node)
         while self._is_operator("+") or self._is_operator("-"):
+            op_str = self._current["value"]
             self._consume(node)
-            node.add(self._term())
-        return node
+            right_node, right_ast = self._term()
+            node.add(right_node)
+            left_ast = ast.BinaryOperation(left_ast, op_str, right_ast)
+        return node, left_ast
 
     def _term(self):
         # <term> ::= <factor> { ( "*" | "/" ) <factor> }
         node = Node("<term>")
-        node.add(self._factor())
+        left_node, left_ast = self._factor()
+        node.add(left_node)
         while self._is_operator("*") or self._is_operator("/"):
+            op_str = self._current["value"]
             self._consume(node)
-            node.add(self._factor())
-        return node
+            right_node, right_ast = self._factor()
+            node.add(right_node)
+            left_ast = ast.BinaryOperation(left_ast, op_str, right_ast)
+        return node, left_ast
 
     def _factor(self):
         # <factor> ::= IDENTIFIER | NUMBER | "(" <expression> ")" | "-" <factor>
         node = Node("<factor>")
         if self._current["Type"] == "Identifier":
-            self._variable(node)
+            var_name = self._variable(node)
+            return node, ast.Identifier(var_name)
         elif self._current["Type"] == "NumericLiteral":
+            num_val = self._current["value"]
             self._consume(node)
+            return node, ast.NumericLiteral(num_val)
         elif self._is_operator("("):
             self._consume(node)
-            node.add(self._expression())
+            expr_node, expr_ast = self._expression()
+            node.add(expr_node)
             self._expect_operator(")", node)
+            return node, expr_ast
         elif self._is_operator("-"):
             self._consume(node)
-            node.add(self._factor())
+            fac_node, fac_ast = self._factor()
+            node.add(fac_node)
+            return node, ast.BinaryOperation(ast.NumericLiteral(0), "-", fac_ast)
         else:
             self._error("a variable, a number or '('")
-        return node
+            return node, None
 
 
 def main(arguments):
