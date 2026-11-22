@@ -1,78 +1,26 @@
-from Token import *
+from Token import Token, tokenList
 import json
 import sys
 import re
 
-# Group members (Amelia Dodson, Michael Constantine, Jarren Shaw, Alex Rickman)
-
-def tokenize_line(line):
-    tokens = []
-    current_token = ""
-    in_string = False
-    in_hanging_comment = False
-
-    # Combine all the regular expressions
-    regex = r'("[^"]*"|\'[^\']*\')|(/\*.*?\*/)|(//.*)|(\b(import|implementations|function|main|is|variables|define|of|begin|display|set|input|if|then|else|endif|not|greater|or|equal|return)\b)|([a-zA-Z_]\w*)|(\d+(\.\d+)?)|(:|\.|:|,|/|=|>|\*|\)|\()'
-
-    matches = re.finditer(regex, line)
-
-    for match in matches:
-        token = match.group(0)
-
-        if token.strip() == "":
-            continue  # Ignore whitespace tokens
-
-        if '//' in token:
-            # If '//' is found, truncate the token to exclude everything after '//'
-            token = token.split('//')[0].strip()
-
-        tokens.append(token)
-
-    return tokens
-
-def Convert(a): #This function was removed in the CPL_scanner file, even though it also would not work without is
-    it = iter(a)
-    res_dct = dict(zip(it, it))
-    return res_dct
-
-
-def filter_file(File_name):
-    try:
-        file = open(File_name, 'r')
-    except:
-        print("no such file or directory: ", File_name)
-        exit(2)
-
-    lineList = []
-
-    in_hanging_comment = False  # Flag to track if we're inside a hanging comment
-
-    for line in file:
-        #if 'description' in line:
-        #    in_hanging_comment = True
-        # For Scl, the description is in the /* */
-
-        if in_hanging_comment:
-            if '*/' in line:
-                in_hanging_comment = False
-            continue  # Skip lines within hanging comments
-        else:
-            if line.startswith("/*"):
-                in_hanging_comment = True # This line was removed for the CPL_scanner
-                continue  # Skip the comment line
-
-            lineTokens = tokenize_line(line)
-
-            # Remove empty tokens or tokens containing only whitespace
-            lineTokens = [token for token in lineTokens if token.strip() != '']
-
-            if lineTokens:
-                lineList.append(lineTokens)
-
-    return lineList
+# One regular expression, tried left to right at every position of the file.
+# The order matters: strings come first so that "//" inside a string is not
+# mistaken for a comment, and the keyword/identifier pattern is one generic
+# "word" pattern that is looked up in the keyword table afterwards.
+TOKEN_REGEX = re.compile(
+    r'(?P<string>"[^"\n]*"|\'[^\'\n]*\')'      # "text" or 'text'
+    r'|(?P<block_comment>/\*.*?\*/)'           # /* ... */ (may span lines)
+    r'|(?P<bad_comment>/\*)'                   # /* with no closing */
+    r'|(?P<line_comment>//[^\n]*)'             # // to end of line
+    r'|(?P<word>[A-Za-z_]\w*)'                 # keyword or identifier
+    r'|(?P<number>\d+(?:\.\d+)?)'              # integer or decimal number
+    r'|(?P<symbol>>=|<=|[:.,/=><*()+\-^])'     # operators and special symbols
+    r'|(?P<other>\S)',                         # anything else -> UNKNOWN
+    re.DOTALL)
 
 ident_counter = 3000
 identifier_map = {}
+
 # Function to categorize tokens
 def categorize_token(token):
     global ident_counter
@@ -80,19 +28,19 @@ def categorize_token(token):
     if token in tokenList["keywords"]:
         return {"Type": "Keyword", "id": tokenList["keywords"][str(token)], "value": token}
     elif re.match(r'^[a-zA-Z_]\w*$', token):
-        #Increment for each ID that is different than one already in the token list
-        #Allows for each identifier to have a unique id
+        # Each different identifier gets its own id, starting at 3000;
+        # the same identifier always gets the same id.
         if token in identifier_map:
             return {"Type": "Identifier", "id": identifier_map[token], "value": token}
-        
+
         result = {"Type": "Identifier", "id": ident_counter, "value": token}
         identifier_map[token] = ident_counter
-        ident_counter+=1
+        ident_counter += 1
         return result
     elif re.match(r'^[0-9]+(\.[0-9]+)?$', token):
         return {"Type": "NumericLiteral", "id": 4000, "value": token}
     elif token.startswith('"') or token.startswith("'"):
-        # Remove leading and trailing double quotes, "\, and /" from string literals
+        # Remove the surrounding quotes from string literals
         cleaned_token = token[1:-1].replace('\\"', '"').replace("\\'", "'").replace("\\/", "/")
         return {"Type": "StringLiteral", "id": 5000, "value": cleaned_token}
     elif token in tokenList["operators"]:
@@ -105,57 +53,75 @@ def categorize_token(token):
     # If none of the above conditions match, treat it as an "UNKNOWN" token
     return {"Type": "UNKNOWN", "id": 1200, "value": token}
 
+
+def scan_file(file_name):
+    """Scan an SCL source file and return a list of Token objects.
+
+    Comments and white space produce no tokens. An EndOfStatement (EOS) token
+    is added after the last token of every source line that contains tokens.
+    Raises FileNotFoundError if the file cannot be opened."""
+    global ident_counter
+    ident_counter = 3000          # start fresh for every file that is scanned
+    identifier_map.clear()
+
+    with open(file_name, 'r') as source:
+        text = source.read()
+
+    tokens = []
+    line = 1              # line number of the match being looked at
+    counted_up_to = 0     # position in text up to which newlines are counted
+    last_token_line = None
+
+    for match in TOKEN_REGEX.finditer(text):
+        # keep the line number up to date by counting the newlines we passed
+        line += text.count("\n", counted_up_to, match.start())
+        counted_up_to = match.start()
+
+        kind = match.lastgroup
+        lexeme = match.group(0)
+
+        if kind in ("block_comment", "line_comment"):
+            continue                       # comments are ignored
+
+        # a new source line begins: close the previous line with an EOS token
+        if last_token_line is not None and line != last_token_line:
+            tokens.append(Token('EndOfStatement', 1000, 'EOS', last_token_line))
+
+        if kind in ("other", "bad_comment"):
+            info = {"Type": "UNKNOWN", "id": 1200, "value": lexeme}
+        else:
+            info = categorize_token(lexeme)
+
+        tokens.append(Token(info["Type"], info["id"], info["value"], line))
+        last_token_line = line
+
+    if last_token_line is not None:
+        tokens.append(Token('EndOfStatement', 1000, 'EOS', last_token_line))
+
+    return tokens
+
+
+def write_json(tokens, json_name):
+    """Write the tokens to a JSON file as Token_0, Token_1, ..."""
+    mega_dict = {}
+    for number, token in enumerate(tokens):
+        mega_dict["Token_" + str(number)] = token.toDict()
+    with open(json_name, 'w') as out:
+        out.write(json.dumps(mega_dict, indent=4))
+
+
 if __name__ == '__main__':
-    sysArgv = sys.argv
+    if len(sys.argv) < 2:
+        print("usage: python Tokenizer.py <source file.scl>")
+        sys.exit(1)
 
-    ItemList = filter_file(sysArgv[1])
-    #ItemList = filter_file("welcome.scl") # For Development Purposes
-    finalTokenList = []
+    try:
+        token_list = scan_file(sys.argv[1])
+    except FileNotFoundError:
+        print("no such file or directory: ", sys.argv[1])
+        sys.exit(2)
 
-    megaDict = {}
+    for new_token in token_list:
+        print("New Token created: ", new_token.getData())
 
-    for lineTokens in ItemList:
-        for token in lineTokens:
-            categorized_token = categorize_token(token)
-            newToken = Token(categorized_token["Type"], categorized_token["id"], categorized_token["value"])
-            finalTokenList.append(newToken)
-            print("New Token created: ", newToken.getData())
-
-        newToken = Token('EndOfStatement', 1000, 'EOS')
-        finalTokenList.append(newToken)
-        print("New Token created: ", newToken.getData())
-
-    # Converting token objects into a dictionary
-
-    loopCounter = 0
-    for Token in finalTokenList:
-        tokenStr = "Token_" + str(loopCounter)
-    
-        # Create a dictionary for the token with relevant information
-        tokenData = Token.getData()
-        tokenDict = {
-            "Type": tokenData[0],
-            "id": tokenData[1],
-            "value": tokenData[2]
-        }
-    
-        # Add the token dictionary to the megaDict
-        megaDict[tokenStr] = tokenDict
-    
-        loopCounter += 1
-
-    loopCounter = 0
-    for Token in finalTokenList:
-        tokenData = Token.getData()
-        lst = ['Type', tokenData[0], 'id', tokenData[1], 'value', tokenData[2]]
-        newList = Convert(lst)
-        
-        tokenStr = "Token_" + str(loopCounter)
-
-        megaDict[tokenStr].update(newList)
-        loopCounter += 1 #This line was also removed from the CPL_scanner file for some reason ㄟ( ▔, ▔ )ㄏ
-        
-    #Creating JSON object of the mega dictionary and writing to new output JSON file
-    json_object = json.dumps(megaDict, indent=4)
-    with open('OutputTokens.json', 'w') as f:
-        f.write(json_object)
+    write_json(token_list, 'OutputTokens.json')

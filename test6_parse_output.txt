@@ -1,0 +1,8 @@
+Line 1: <import_statement> recognized
+Line 5: <declaration> (variable 'x' of type integer) recognized
+Line 7: <set_statement> recognized
+Line 8: <display_statement> recognized
+Line 9: <return_statement> recognized
+
+ERROR: Syntax error on line 9: expected a statement or 'endfun' but found the end of the file
+Parsing stopped at the first error.

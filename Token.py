@@ -68,11 +68,13 @@ tokenList = {
         '=': 408,
         '(':409,
         ')':410,
-        '.':411 # TODO Need to add some way to signify operator vs special symbol
+        '.':411, # TODO Need to add some way to signify operator vs special symbol
                 # Resolved above by removing '.' from specialSymbols.
                 # Note that its use in Sysplm is as an operator or in float nums
                 # & its use in float nums is handled via regex, so we can leave it out
                 # of SpecialSymbols.
+        '>=':412,  # Deliverable 2: two-character relational operators are now
+        '<=':413   # scanned as a single token
     },
 
     "specialSymbols": {
@@ -81,11 +83,17 @@ tokenList = {
 }
 
 class Token:
-    def __init__(self, type, id, value):
+    # Deliverable 2: a token now also remembers the source line it came from
+    # (the parser uses it in its error messages). 'line' is optional so that
+    # older code that calls Token(type, id, value) keeps working.
+    def __init__(self, type, id, value, line=None):
         self.type = type
         self.id = id
         self.value = value
+        self.line = line
 
     def getData(self):
         return [self.type, self.id, self.value]
-        
+
+    def toDict(self):
+        return {"Type": self.type, "id": self.id, "value": self.value, "line": self.line}      

@@ -1,0 +1,11 @@
+import "scl.h"
+implementations
+function main is
+variables
+    define x of type integer
+    define y of type double
+    define x of type double
+begin
+    set x = 5
+    return 0
+endfun main

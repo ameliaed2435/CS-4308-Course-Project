@@ -1,0 +1,6 @@
+Line 1: <import_statement> recognized
+Line 5: <declaration> (variable 'x' of type integer) recognized
+Line 7: <set_statement> recognized
+
+ERROR: Syntax error on line 9: expected 'then' but found 'display'
+Parsing stopped at the first error.

@@ -1,0 +1,26 @@
+/*
+ Program     : test_valid_loop.scl
+ Description : while loop, arithmetic expressions, and comments
+ */
+import "scl.h"
+implementations
+function main is
+variables
+    define count of type integer     // loop counter
+    define total of type integer
+    define average of type double
+begin
+    set count = 1
+    set total = 0
+    while count <= 5 do
+        set total = total + count * 2 /* running sum */
+        set count = count + 1
+    endwhile
+    set average = (total - 1) / count
+    display "Total: ", total, " average: ", average   // url-like text below
+    display "see http://example.com/scl"
+    if total > 20 then
+        display -total
+    endif
+    return 0
+endfun main
