@@ -119,6 +119,9 @@ class Operator:
 class Expression: # base class for scl expressions
     pass
 
+class Exit(Expression): # exit class
+    pass
+
 class Condition(Expression):
     # represents condition
     def __init__(self, left, operator, right, negated=False):
