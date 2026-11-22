@@ -17,10 +17,10 @@ class Executer:
             self.log(value)
         elif isinstance(statement, ast.Set):
             value = self.evaluate_expression(statement.expression)
-            self.memory [statement.identifier.name] = value
+            self.memory[statement.identifier.name] = value
         elif isinstance(statement, ast.Input):
             value = input(statement.prompt)
-            self.memory[ statement.identifier.name] = value
+            self.memory[statement.identifier.name] = value
         elif isinstance(statement, ast.Exit):
             exit()
         elif isinstance(statement, ast.Return):
@@ -31,6 +31,9 @@ class Executer:
                 self.execute_statement(statement.if_block)
             else:
                 self.execute_statement(statement.else_block)
+        elif isinstance(statement, ast.While):
+            while self.evaluate_condition(statement.condition):
+                self.execute_statement(statement.body)
 
     def evaluate_expression(self, expression):
         if isinstance(expression, ast.BinaryOperation):
@@ -49,5 +52,12 @@ class Executer:
             left = self.evaluate_expression(condition.left)
             right = self.evaluate_expression(condition.right)
             return condition.operator.apply(left, right)
+        elif isinstance(condition, ast.Condition):
+            left = self.evaluate_expression(condition.left)
+            right = self.evaluate_expression(condition.right)
+            out = condition.operator.apply(left, right)
+            if condition.negated:
+                out = not out
+            return out
         elif isinstance(condition, ast.Identifier):
             return bool(self.memory[condition.name])

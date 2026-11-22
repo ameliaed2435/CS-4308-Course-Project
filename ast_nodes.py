@@ -143,7 +143,7 @@ class BinaryOperation(Expression):
     def __repr__(self):
         return f"BinaryOperation({self.left} {self.operator.symbol} {self.right})"
 
-
+""" SCL has no Unary Operations
 class UnaryOperation(Expression):
     # represents unary arithmetic operation
     def __init__(self, operator, operand):
@@ -152,7 +152,7 @@ class UnaryOperation(Expression):
 
     def __repr__(self):
         return f"UnaryOperation({self.operator}{self.operand})"
-
+"""
 
 class Identifier(Expression):
     # IDENTIFIER token reference
