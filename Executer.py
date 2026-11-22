@@ -14,7 +14,7 @@ class Executer:
         if isinstance(statement, ast.Display):
             value = self.evaluate_expression(statement.expression)
             print(value)
-            self.log(value)
+            # self.log(value) # I do not think this is necessary
         elif isinstance(statement, ast.Set):
             value = self.evaluate_expression(statement.expression)
             self.memory[statement.identifier.name] = value
