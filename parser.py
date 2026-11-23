@@ -3,12 +3,11 @@ import os
 import sys
 
 import ast_nodes as ast
-
 from Tokenizer import scan_file
 
 DATA_TYPES = ("integer", "double", "float", "char")
 RELATIONAL_OPERATORS = (">", ">=", "<", "<=", "=")
-STATEMENT_KEYWORDS = ("display", "set", "input", "if", "while", "return")
+STATEMENT_KEYWORDS = ("display", "set", "input", "if", "while", "return", "exit")
 
 
 class ParseError(Exception):
@@ -89,11 +88,16 @@ class Parser:
     def begin(self):
         """Parse the whole program. Returns True if correct."""
         success = False
+        self._position = -1
+        self._current = None
+        self._symbols = {}
+        self._statement_count = 0
+        self._output = []
         self.ast_program = None
+
         try:
             self.getNextToken()
             tree, self.ast_program = self._start()
-            tree = self._start()
             self._emit("")
             self._emit("Parsing completed successfully: %d statements recognized, %d variables declared." %
                        (self._statement_count, len(self._symbols)))
@@ -103,7 +107,7 @@ class Parser:
                 self._emit(line)
             success = True
         except ParseError as error:
-            self.ast_program
+            self.ast_program = None
             self._emit("")
             self._emit("ERROR: %s" % error)
             self._emit("Parsing stopped at the first error.")
@@ -219,11 +223,18 @@ class Parser:
         return node, imp_val
 
     def _function(self):
-        # <function> ::= "function" "main" "is" "variables" <declarations>
-        #                "begin" <statements> "endfun" "main"
+        # <function> ::= "function" "main" [ "return" "type" <type> ] "is"
+        #                "variables" <declarations> "begin" <statements> "endfun" "main"
         node = Node("<function>")
         self._expect_keyword("function", node)
         self._expect_keyword("main", node)
+        if self._is_keyword("return"):
+            self._consume(node)
+            self._expect_keyword("type", node)
+            type_node = node.add(Node("<type>"))
+            if self._current["Type"] != "Keyword" or self._current["value"] not in DATA_TYPES:
+                self._error("a data type (integer, double, float or char)")
+            self._consume(type_node)
         self._expect_keyword("is", node)
         self._expect_keyword("variables", node)
         decls_node, decls_ast = self._declarations()
@@ -299,8 +310,10 @@ class Parser:
             stmt_node, stmt_ast = self._if_statement()
         elif word == "while":
             stmt_node, stmt_ast = self._while_statement()
-        else:
+        elif word == "return":
             stmt_node, stmt_ast = self._return_statement()
+        else:
+            stmt_node, stmt_ast = self._exit_statement()
         node.add(stmt_node)
         return node, stmt_ast
 
@@ -404,15 +417,24 @@ class Parser:
         self._recognized("<return_statement>", line)
         return node, ast.Return(expr_ast)
 
+    def _exit_statement(self):
+        # <exit_statement> ::= "exit"
+        node = Node("<exit_statement>")
+        line = self._line()
+        self._expect_keyword("exit", node)
+        self._recognized("<exit_statement>", line)
+        return node, ast.Exit()
+
     def _condition(self):
         # <condition> ::= [ "not" ] <expression> <relop> <expression>
         node = Node("<condition>")
+        negated = False
         if self._is_keyword("not"):
             negated = True
             self._consume(node)
         left_node, left_ast = self._expression()
         node.add(left_node)
-        op_node, op_ast = self.relop()
+        op_node, op_ast = self._relop()
         node.add(op_node)
         right_node, right_ast = self._expression()
         node.add(right_node)

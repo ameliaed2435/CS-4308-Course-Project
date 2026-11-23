@@ -1,0 +1,14 @@
+import "scl.h"
+implementations
+function main return type integer is
+variables
+    define numerator of type double
+    define denominator of type double
+    define result of type double
+begin
+    input "Enter numerator: ", numerator
+    input "Enter denominator: ", denominator
+    set result = numerator / denominator
+    display "Result: ", result
+    return 0
+endfun main

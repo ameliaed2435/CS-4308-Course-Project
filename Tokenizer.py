@@ -8,14 +8,14 @@ import re
 # mistaken for a comment, and the keyword/identifier pattern is one generic
 # "word" pattern that is looked up in the keyword table afterwards.
 TOKEN_REGEX = re.compile(
-    r'(?P<string>"[^"\n]*"|\'[^\'\n]*\')'      # "text" or 'text'
-    r'|(?P<block_comment>/\*.*?\*/)'           # /* ... */ (may span lines)
-    r'|(?P<bad_comment>/\*)'                   # /* with no closing */
-    r'|(?P<line_comment>//[^\n]*)'             # // to end of line
-    r'|(?P<word>[A-Za-z_]\w*)'                 # keyword or identifier
-    r'|(?P<number>\d+(?:\.\d+)?)'              # integer or decimal number
-    r'|(?P<symbol>>=|<=|[:.,/=><*()+\-^])'     # operators and special symbols
-    r'|(?P<other>\S)',                         # anything else -> UNKNOWN
+    r'(?P<string>"[^"\n]*"|\'[^\'\n]*\')'                 # "text" or 'text'
+    r'|(?P<block_comment>(?:/\*|\bdescription\b).*?\*/)'  # /* ... */ or description ... */
+    r'|(?P<bad_comment>/\*)'                              # /* with no closing */
+    r'|(?P<line_comment>//[^\n]*)'                        # // to end of line
+    r'|(?P<word>[A-Za-z_]\w*)'                            # keyword or identifier
+    r'|(?P<number>\d+(?:\.\d+)?)'                         # integer or decimal number
+    r'|(?P<symbol>>=|<=|[:.,/=><*()+\-^])'                # operators and special symbols
+    r'|(?P<other>\S)',                                    # anything else -> UNKNOWN
     re.DOTALL)
 
 ident_counter = 3000

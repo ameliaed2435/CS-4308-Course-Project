@@ -1,0 +1,69 @@
+description
+  Program     : full_test.scl
+  Description : Tests all statements, data types, expressions,
+                and control-flow constructs in our SCL subset.
+		Made with AI assistance (Model: Gemini).
+*/
+
+import "scl.h"
+
+implementations
+
+function main return type integer is
+variables
+    define user_name of type char
+    define limit of type integer
+    define counter of type integer
+    define total of type double
+    define average of type float
+    define offset of type integer
+    define ptr_demo pointer of type integer
+begin
+    /* Interactive input and string/variable display */
+    input "Enter your name: ", user_name
+    display "Hello, ", user_name
+
+    input "Enter a positive integer (e.g. 5): ", limit
+
+    // Arithmetic expressions, parentheses, and unary negation
+    set counter = 1
+    set total = 0
+    set ptr_demo = 10
+    set offset = -(2 + 3) * 2
+    display "Computed offset -(2 + 3) * 2 = ", offset
+
+    // Conditional branching with if / else
+    if limit < 1 then
+        display "Limit was less than 1; defaulting to 3."
+        set limit = 3
+    else
+        display "Using limit: ", limit
+    endif
+
+    // While loop with accumulation
+    while counter <= limit do
+        set total = total + counter
+        display "Step ", counter, " running total = ", total
+        set counter = counter + 1
+    endwhile
+
+    set average = total / limit
+    display "Final total: ", total, " | Average: ", average
+
+    // Word-based relational operators and logical negation
+    if average greater or equal 3.0 then
+        display "Average is at least 3.0"
+    else
+        display "Average is below 3.0"
+    endif
+
+    if not total equal 0 then
+        display "Total is non-zero"
+    endif
+
+    if ptr_demo greater 5 then
+        display "Pointer declaration value: ", ptr_demo
+    endif
+
+    return 0
+endfun main

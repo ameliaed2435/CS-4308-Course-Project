@@ -1,0 +1,12 @@
+import "scl.h"
+implementations
+function main return type integer is
+variables
+    define x of type integer
+begin
+    set x = 10
+    if x > 5
+        display "Missing then keyword"
+    endif
+    return 0
+endfun main
